@@ -41,19 +41,23 @@ from nrewebservices.ldbws import Session
 session = Session(API_URL, API_KEY)
 
 # Get a departure board containing the next ten departures from Reading.
-board = session.get_station_board("VIC", rows=50, include_departures=True, include_arrivals=False)
+board = session.get_station_board("ZFD", rows=150, include_departures=True, include_arrivals=False)
 
-print("The next 50 departures from {} are:".format(board.location_name))
+print("Trains departing late between 5 - 22 pm from {} to Brighton are:".format(board.location_name))
 
 # Loop over all the train services in that board.
 for service in board.train_services:
     
     # Print some basic information about that train service.
-    print("    {} to {}: due {}.".format(
-        service.std,
-        service.destination,
-        service.etd
-    ))
+    # if str(service.etd) == 'On time':
+    scheduledTime = str(service.std)
+    if scheduledTime[0:2] == '20' or scheduledTime[0:2] == '22':
+        if str(service.destination) == 'Brighton' and str(service.etd) != 'On time':
+            print(" Train {} to {}: due {}.".format(
+                service.std,
+                service.destination,
+                service.etd
+            ))
 
 print()
 
@@ -67,14 +71,12 @@ from nrewebservices.ldbws import Session
 session = Session(API_URL, API_KEY)
 
 # Get a the next departures from Reading to Paddington and Oxford.
-board = session.get_next_departures("RDG", ["PAD", "OXF"])
+board = session.get_next_departures("ZFD", ["BTN"])
 
-print("The next departures from {} to popular destinations are as follows:".format(board.location_name))
+print("The next departures from {} to Brighton are as follows:".format(board.location_name))
 
 # Loop over the departures.
 for departure in board.next_departures:
-
-    print("To {}:".format(departure.crs))
 
     # Build a list of destinations for each train service.
     destinations = [destination.location_name for destination in departure.service.destinations]
